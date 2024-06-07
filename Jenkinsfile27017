@@ -5,6 +5,9 @@ pipeline {
     stage('beginning') {
       steps {
         sh '''echo "running mongodb on port 27017"
+        whereis node
+        whereis npm
+        npm i -g pm2
         '''
       }
     }
