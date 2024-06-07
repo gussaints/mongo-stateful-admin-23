@@ -5,32 +5,15 @@ pipeline {
     stage('beginning') {
       steps {
         sh '''echo "running mongodb on port 27017"
-        whereis node
-        whereis npm
-        whereis pm2
         '''
       }
     }
 
-    stage('Deploy stateful service') {
+    stage('Deploy stateful service gateway') {
       steps {
         withCredentials(bindings: [string(credentialsId: 'k8s-jnkns-srvr-account', variable: 'api_token')]) {
           sh '''echo "mongodb yaml"
           kubectl --token $api_token --server https://192.168.49.2:8443 --insecure-skip-tls-verify=true apply -f mongodb-27017.stateful.yaml
-          '''
-        }
-      }
-    }
-
-    stage('Deploy portforward') {
-      options {
-        timeout(time: 40, unit: 'SECONDS')
-      }
-      steps {
-        withCredentials(bindings: [string(credentialsId: 'k8s-jnkns-srvr-account', variable: 'api_token')]) {
-          sh '''
-          echo "mongodb port-forward"
-          nohup kubectl --token $api_token --server https://192.168.49.2:8443 --insecure-skip-tls-verify=true port-forward service/mongodb-27017-srvc 27017:27017 --address=0.0.0.0 &
           '''
         }
       }
