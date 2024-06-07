@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: adminmongo-12342-set
+  labels:
+    app: adminmongo-12342
+spec:
+  serviceName: adminmongo-12342-srvc
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adminmongo-12342
+  template:
+    metadata:
+      labels:
+        app: adminmongo-12342
+    spec:
+      containers:
+      - name: adminmongo-12342
+        image: mrvautin/adminmongo:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 12342 # Puerto en el que se ejecuta AdminMongo
+        env:
+        - name: PORT
+          value: "12342" # Puerto en el que se ejecutará AdminMongo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adminmongo-12342-srvc
+  labels:
+    app: adminmongo-12342
+spec:
+  #type: LoadBalancer
+  type: NodePort
+  selector:
+    app: adminmongo-12342
+  ports:
+  - protocol: TCP
+    name: adminmongo-12342
+    port: 12342 # Puerto en el que se expondrá el servicio
+    # By default and for convenience, the `targetPort` is set to
+    # the same value as the `port` field.
+    targetPort: 12342 # Puerto del pod de AdminMongo
+    # Optional field
+      # By default and for convenience, the Kubernetes control plane
+      # will allocate a port from a range (default: 30000-32767)
+#      nodePort: 32123

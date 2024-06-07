@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb-27018-set
+  labels:
+    app: mongodb-27018
+spec:
+  serviceName: "mongodb-27018-srvc"
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mongodb-27018
+  template:
+    metadata:
+      labels:
+        app: mongodb-27018
+    spec:
+      containers:
+      - name: mongodb-27018
+        image: mongo:7.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: mongodb-27018-data
+          mountPath: /data/db
+      volumes:
+      - name: mongodb-27018-data
+        hostPath:
+          path: /mnt/hpsdmongodb
+          type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-27018-srvc
+  labels:
+    app: mongodb-27018
+spec:
+  # type: LoadBalancer
+  type: NodePort
+  selector:
+    app: mongodb-27018
+  ports:
+    - protocol: TCP
+      name: mongodb-27018
+      port: 27018
+      # By default and for convenience, the `targetPort` is set to
+      # the same value as the `port` field.
+      targetPort: 27017
+      # Optional field
+      # By default and for convenience, the Kubernetes control plane
+      # will allocate a port from a range (default: 30000-32767)
+#      nodePort: 32123
