@@ -9,13 +9,11 @@ pipeline {
       }
     }
 
-    stage('Deploy stateful service portforward') {
+    stage('Deploy stateful service gateway') {
       steps {
         withCredentials(bindings: [string(credentialsId: 'k8s-jnkns-srvr-account', variable: 'api_token')]) {
           sh '''echo "mongodb yaml"
           kubectl --token $api_token --server https://192.168.49.2:8443 --insecure-skip-tls-verify=true apply -f adminmongo-12343.stateful.yaml
-          echo "mongodb port-forward"
-          pm2 start "kubectl --token $api_token --server https://192.168.49.2:8443 --insecure-skip-tls-verify=true port-forward service/adminmongo-12343-srvc 12343:12343 --address=0.0.0.0" --name adminmongo12343
           '''
         }
       }
