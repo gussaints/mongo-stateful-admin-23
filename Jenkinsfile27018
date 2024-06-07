@@ -1,0 +1,25 @@
+pipeline {
+  agent any
+  stages {
+
+    stage('beginning') {
+      steps {
+        sh '''echo "running mongodb on port 27018"
+        '''
+      }
+    }
+
+    stage('Deploy stateful service portforward') {
+      steps {
+        withCredentials(bindings: [string(credentialsId: 'k8s-jnkns-srvr-account', variable: 'api_token')]) {
+          sh '''echo "mongodb yaml"
+          kubectl --token $api_token --server https://192.168.49.2:8443 --insecure-skip-tls-verify=true apply -f mongodb-27018.stateful.yaml
+          echo "mongodb port-forward"
+          pm2 start "kubectl --token $api_token --server https://192.168.49.2:8443 --insecure-skip-tls-verify=true port-forward service/mongodb-27018-srvc 27018:27018 --address=0.0.0.0" --name mongodb27018
+          '''
+        }
+      }
+    }
+
+  }
+}
